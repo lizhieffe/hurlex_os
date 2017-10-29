@@ -1,4 +1,5 @@
 #include "console.h"
+#include "debug.h"
 #include "types.h"
 
 int kern_entry() {
@@ -7,8 +8,10 @@ int kern_entry() {
 
   console_clear();
 
-  char greeting[] = "Hello, world!\n\t- by lizhi";
-  console_write_color(greeting, rc_black, rc_green);
+  // char greeting[] = "Hello, world!\n\t- by lizhi\n";
+  // console_write_color(greeting, rc_black, rc_green);
+
+  printk_color(rc_black, rc_green, "Hello, world!\n\t- by %s\n", "lizhi");
 
   return 0;
 }

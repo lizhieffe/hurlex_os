@@ -3,6 +3,25 @@
 
 #include "console.h"
 
+#define assert(x, info)               \
+  do {                                \
+    if (!(x)) {                       \
+      panic(info);                    \
+    }                                 \
+  } while (0);
+
+#define static_assert(x)              \
+  switch(x) { case 0: case (x): ;}
+
+// Initialize the debug info.
+void init_debug();
+
+// Print the msg + the stack trace.
+void panic(const char *msg);
+
+// print the current registers info.
+void print_cur_status();
+
 // Print function for kernel.
 void printk(const char *format, ...);
 

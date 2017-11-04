@@ -3,10 +3,10 @@
 #include "types.h"
 
 int kern_entry() {
-  uint8_t *input = (uint8_t *)0xB8000;
-  uint8_t color = (0 << 4) | (15 & 0x0F);
-
   init_debug();
+  init_gdt();
+  init_idt();
+
   console_clear();
 
   // char greeting[] = "Hello, world!\n\t- by lizhi\n";
@@ -14,7 +14,10 @@ int kern_entry() {
 
   printk_color(rc_black, rc_green, "Hello, world!\n\t- by %s\n", "lizhi");
 
-  panic("test by lizhi");
+  // panic("test by lizhi");
+
+  asm volatile("int $0x3");
+  asm volatile("int $0x4");
 
   return 0;
 }

@@ -2,5 +2,6 @@
 
 file hx_kernel
 target remote :1234
-b kern_entry
+#b kern_entry
+b start
 c

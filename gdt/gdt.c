@@ -23,9 +23,17 @@ void init_gdt() {
 
   // 采用 Intel 平坦模型
   // The flat model maps all the segments to the same address space, to mimic
-  // the situation that there is no segmentation. This is a regular approach to
+  // the situation that there is no segmentation. It also means the logical
+  // address is the same as physical address. This is a regular approach to
   // disable the segmentation, because nowadays people tends to enable the
   // paging but disable the segmentation.
+  //
+  // 随着分页机制的提出，GDT所代表的分段机制逐渐废弃。对于现代操作系统而言，
+  // GDT的作用几乎只是用来改变当前CPU执行的特权级，并且改变CPU的特权级也只有这种
+  // 方式。
+  // 
+  // The GRUB multiboot already set the memory model to flat model and install
+  // the GDT, but there we set it again for demo purpose.
   gdt_set_gate(0, 0, 0, 0, 0);   // 按照 Intel 文档要求，第一个描述符必须全 0
   gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);     // kernel code segment
   gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);     // kernel data segment

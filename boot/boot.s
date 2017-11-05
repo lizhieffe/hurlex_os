@@ -42,9 +42,9 @@ dd MBOOT_CHECKSUM
 
 [GLOBAL start]
 [GLOBAL glb_mboot_ptr]
-[EXTERN kern_entry]   ; indicate that the routine will be available in other file
+[EXTERN kern_entry]   ; indicate that the routine can be found in other file
 
-start:
+start:  ; entry point of the kernel. The entry point tag is defined in scripts/kernel.ld file.
   cli
   mov esp, STACK_TOP
   mov ebp, 0

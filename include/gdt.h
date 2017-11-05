@@ -17,7 +17,7 @@ struct gdt_entry_t {
 // GDTR. Pointer to the Global Descriptor Table.
 typedef
 struct gdt_ptr_t {
-  uint16_t limit;       // limit for the maximum addressable unit. Start from 0.
+  uint16_t limit;       // or called size. limit for the maximum addressable unit. Start from 0.
   uint32_t base;        // address of the table.
 } __attribute__((packed)) gdt_ptr_t;
 

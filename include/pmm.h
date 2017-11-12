@@ -11,7 +11,8 @@
 // Max physical memory supported 512 MB.
 #define PMM_MAX_SIZE 0x20000000
 
-// Page size 4096 KB.
+// Divide the physical memory to page with size 4096 KB. This size is the same
+// size as the size used for virtual memory in the paging mechanism.
 #define PMM_PAGE_SIZE 0x1000
 
 // Number of pages supported.
@@ -32,10 +33,12 @@ void show_memory_map();
 
 void init_pmm();
 
-// Allocate memory and returns its physical address.
+// Allocate memory from the available memory in kernel stack and returns its
+// physical address.
 uint32_t pmm_alloc_page();
 
-// Free the given memory.
+// Free the given physical memory and return it to the kernel stack as available
+// memory.
 void pmm_free_page(uint32_t p);
 
 #endif  // INCLUDE_PMM_H_

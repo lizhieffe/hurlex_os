@@ -34,31 +34,29 @@ MBOOT_CHECKSUM      equ     -(MBOOT_HEADER_MAGIC+MBOOT_HEADER_FLAGS)
 ;-----------------------------------------------------------------------------
 
 [BITS 32]   ; compile as 32bits
-section .text
 
+section .init.text    ; tmp code section
+
+; standard of multiboot requires these definition at the beginning of code section
 dd MBOOT_HEADER_MAGIC
 dd MBOOT_HEADER_FLAGS
 dd MBOOT_CHECKSUM
 
 [GLOBAL start]
-[GLOBAL glb_mboot_ptr]
-[EXTERN kern_entry]   ; indicate that the routine can be found in other file
+[GLOBAL mboot_ptr_tmp]
+[EXTERN kern_entry]   ; indicate that the routine can be found in other file. Before mmu enabled.
 
 start:  ; entry point of the kernel. The entry point tag is defined in scripts/kernel.ld file.
-  cli
+  cli   ; haven't set the interrupt handler. So close the interrupt.
+  mov [mboot_ptr_tmp], ebx
   mov esp, STACK_TOP
-  mov ebp, 0
   and esp, 0FFFFFFF0H
-  mov [glb_mboot_ptr], ebx
+  mov ebp, 0
+
   call kern_entry
-stop:
-  hlt
-  jmp stop
 
-section .bss
-stack:
-  resb 32768
-glb_mboot_ptr:
-  resb 4
+section .init.data    ; tmp data section before paging enabled 
+stack: times 1024 db 0     ; tmp kernel stack before paging enabled.
+STACK_TOP equ $-stack-1   ; tmp kernel stack top
 
-STACK_TOP equ $-stack-1
+mboot_ptr_tmp: dd 0   ; global multiboot pointer before mmu enabled.

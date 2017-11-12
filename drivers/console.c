@@ -1,11 +1,13 @@
-#include "common.h"
 #include "console.h"
+
+#include "common.h"
+#include "vmm.h"
 
 uint8_t kConsoleWidth = 80;
 uint8_t kConsoleHeight = 25;
 
 // Address of the start of the VGA memory.
-static uint16_t *video_memory = (uint16_t *)0xB8000;
+static uint16_t *video_memory = (uint16_t *)(0xB8000 + PAGE_OFFSET);
 
 // Cursor location.
 static uint8_t cursor_x = 0;

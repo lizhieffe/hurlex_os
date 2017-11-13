@@ -23,7 +23,21 @@
  */
 #define PAGE_WRITE 0x2
 
+/**
+ * U/S -- 位 2 是用户 / 超级用户 (User/Supervisor) 标志。
+ * 如果为 1 ，那么运行在任何特权级上的程序都可以访问该页面。
+ * 如果为 0 ，那么页面只能被运行在超级用户特权级 (0,1 或 2) 上的程序访问。
+ * 页目录项中的 U/S 位对其所映射的所有页面起作用。
+ */
+#define PAGE_USER   0x4
+
 #define PAGE_SIZE 4096  // page size (2^12 bytes)
+
+// 页掩码，用于 4KB 对齐
+// The least significant 12 bits in pgd_t are control bits. The most significant
+// 20 bits + 000000000000 are the physical address. Here we filter out the
+// control bits.
+#define PAGE_MASK      0xFFFFF000
 
 // Given a virtual address, return the page directory index.
 // 0x3FF = 0011 1111 1111
@@ -62,6 +76,17 @@ void init_vmm();
 // Switch the page directly. |pd| should be physical address of the new page
 // directory.
 void switch_pgd(uint32_t pd);
+
+// Map the pa to va. |flags| specifies the page setting.
+void map(pgd_t *pgd_now, uint32_t va, uint32_t pa, uint32_t flags);
+
+// Unmap the va.
+void unmap(pgd_t *pgd_now, uint32_t va);
+
+// 如果虚拟地址 va 映射到物理地址则返回 1
+// 同时如果 pa 不是空指针则把物理地址写入 pa 参数
+// The returned pa is aligned with 4096 Bytes. (TODO: should we align? why?)
+uint32_t get_mapping(pgd_t *pgd_now, uint32_t va, uint32_t *pa);
 
 // Interrupt handler for page fault (id 14).
 void page_fault_handler();

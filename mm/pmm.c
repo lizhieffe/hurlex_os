@@ -9,7 +9,7 @@ static uint32_t pmm_stack[PAGE_MAX_SIZE + 1];
 // Pointer to the kernel physical memory stack top.
 static uint32_t pmm_stack_top;
 
-// Count of physical pages.
+// Count of physical pages, including both the free and non-free ones.
 uint32_t phy_page_count;
 
 void show_memory_map() {

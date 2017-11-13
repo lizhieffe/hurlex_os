@@ -1,7 +1,9 @@
 #ifndef INCLUDE_VMM_H_
 #define INCLUDE_VMM_H_
 
-// Where the virtual memory starts.
+#include "types.h"
+
+// Where the virtual memory starts. (3GB)
 #define PAGE_OFFSET 0xC0000000
 
 /**
@@ -28,10 +30,40 @@
 // This implies that a pgd entry manages 4MB virtual memory.
 #define PGD_INDEX(x) (((x) >> 22) & 0x3FF)
 
+// Similar as above, but instead return the page table idnex.
+#define PTE_INDEX(x) (((x) >> 12) & 0x3FF)
+
 // Page directory entry.
 typedef uint32_t pgd_t;
 
 // Page table entry.
 typedef uint32_t pte_t;
+
+#define PGD_SIZE (PAGE_SIZE/sizeof(pte_t))
+
+#define PTE_SIZE (PAGE_SIZE/sizeof(uint32_t))
+
+// Count of page tables needed for mapping 512MB memory. Or to say we need 128
+// page directory entries (page directory entry is one to one mapping to page
+// table).
+// How to get the number:
+// One page table is fit into 1 page of memory (4096 Bytes). One page table
+// entry is 4B, and thus one page table has 4096/4=1024 entries. One entry
+// maps to one page (4096 Bytes), so one page table manages 1024*4096B=4MB. For
+// 512MB, we need 512/4=128 page tables.
+#define PTE_COUNT 128
+
+// Page directory after paging enabled.
+extern pgd_t pgd_kern[PGD_SIZE];
+
+// Init virtual memory.
+void init_vmm();
+
+// Switch the page directly. |pd| should be physical address of the new page
+// directory.
+void switch_pgd(uint32_t pd);
+
+// Interrupt handler for page fault (id 14).
+void page_fault_handler();
 
 #endif  // INCLUDE_VMM_H_

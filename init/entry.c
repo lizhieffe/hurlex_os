@@ -1,6 +1,7 @@
 #include "console.h"
 #include "debug.h"
 #include "gdt.h"
+#include "heap.h"
 #include "idt.h"
 #include "mm_util.h"
 #include "multiboot.h"
@@ -40,9 +41,6 @@ __attribute__((section(".init.text"))) void kern_entry() {
     // TODO: is this 4MB interval or 1MB?
     pte_high[i] = (i << 12) | PAGE_PRESENT | PAGE_WRITE;
   }
-
-  uint32_t pgd_index = PGD_INDEX(0xC0000001);
-  uint32_t pgd_value = pgd_tmp[pgd_index];
 
   // set temp pgd
   asm volatile ("mov %0, %%cr3" : : "r" (pgd_tmp));
@@ -103,6 +101,13 @@ void kern_init() {
 
   printk_color(rc_black, rc_green, "0x%08X->0x%08x\n", 0xC0000000, (uint32_t)get_phyaddr(0xC0000000));
   printk_color(rc_black, rc_green, "0x%08X->0x%08x\n", 0xC0010020, (uint32_t)get_phyaddr(0xC0010020));
+
+  init_heap();
+
+  printk_color(rc_black, rc_red, "\nThe Count of Physical Memory Page is: %u\n\n", phy_page_count);
+
+  test_heap();
+
 
   while (1) {
     asm volatile ("hlt");

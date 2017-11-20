@@ -51,8 +51,7 @@ void init_pmm() {
       uint32_t length = map_entry->base_addr_low + map_entry->length_low;
 
       // TODO: remove this
-      int limit = 0;
-      while (page_addr < length && page_addr <= PMM_MAX_SIZE && limit++ < 20000) {
+      while (page_addr < length && page_addr <= PMM_MAX_SIZE) {
         pmm_free_page(page_addr);
         page_addr += PMM_PAGE_SIZE;
         phy_page_count++;

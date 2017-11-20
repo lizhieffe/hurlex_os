@@ -30,6 +30,8 @@ void show_memory_map() {
 }
 
 void init_pmm() {
+  printk_color(rc_black, rc_red, "PAGE_MAX_SIZE = %d\n", PAGE_MAX_SIZE);
+
   mmap_entry_t *mmap_start_addr = (mmap_entry_t *)glb_mboot_ptr->mmap_addr;
   mmap_entry_t *mmap_end_addr = mmap_start_addr + glb_mboot_ptr->mmap_length;
 
@@ -48,7 +50,9 @@ void init_pmm() {
                            (uint32_t)(kern_end - kern_start);
       uint32_t length = map_entry->base_addr_low + map_entry->length_low;
 
-      while (page_addr < length && page_addr <= PMM_MAX_SIZE) {
+      // TODO: remove this
+      int limit = 0;
+      while (page_addr < length && page_addr <= PMM_MAX_SIZE && limit++ < 20000) {
         pmm_free_page(page_addr);
         page_addr += PMM_PAGE_SIZE;
         phy_page_count++;

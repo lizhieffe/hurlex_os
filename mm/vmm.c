@@ -83,7 +83,7 @@ uint32_t get_mapping(pgd_t *pgd_now, uint32_t va, uint32_t *pa) {
   uint32_t pgd_idx = PGD_INDEX(va);
   uint32_t pte_idx = PTE_INDEX(va);
 
-  pte_t *pte = pgd_now[pgd_idx];
+  pte_t *pte = (pte_t *)(pgd_now[pgd_idx] & PAGE_MASK);
   if (!pte) {
     return 0;
   }

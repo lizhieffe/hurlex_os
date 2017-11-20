@@ -3,10 +3,12 @@
 #include "common.h"
 #include "debug.h"
 #include "idt.h"
+#include "scheduler.h"
 
 static void timer_callback() {
-  static uint32_t tick = 0;
-  printk_color(rc_black, rc_red, "Tick: %d\n", tick++);
+  // static uint32_t tick = 0;
+  // printk_color(rc_black, rc_red, "Tick: %d\n", tick++);
+  schedule();
 }
 
 void init_timer(uint32_t frequency) {

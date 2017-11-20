@@ -41,4 +41,7 @@ uint32_t pmm_alloc_page();
 // memory.
 void pmm_free_page(uint32_t p);
 
+// TODO: add comment.
+extern uint32_t kern_stack_top;
+
 #endif  // INCLUDE_PMM_H_

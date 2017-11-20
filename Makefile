@@ -1,5 +1,14 @@
 #!Makefile
+#
+# --------------------------------------------------------
+#
+#    hurlex 这个小内核的 Makefile
+#    默认使用的C语言编译器是 GCC、汇编语言编译器是 nasm
+#
+# --------------------------------------------------------
+#
 
+# patsubst 处理所有在 C_SOURCES 字列中的字（一列文件名），如果它的 结尾是 '.c'，就用 '.o' 把 '.c' 取代
 C_SOURCES = $(shell find . -name "*.c")
 C_OBJECTS = $(patsubst %.c, %.o, $(C_SOURCES))
 S_SOURCES = $(shell find . -name "*.s")
@@ -15,6 +24,7 @@ ASM_FLAGS = -f elf -g -F stabs
 
 all: $(S_OBJECTS) $(C_OBJECTS) link update_image
 
+# The automatic variable `$<' is just the first prerequisite
 .c.o:
 	@echo 编译代码文件 $< ...
 	$(CC) $(C_FLAGS) $< -o $@
@@ -52,7 +62,7 @@ qemu:
 
 .PHONY:bochs
 bochs:
-	bochs -f tools/bochsrc.txt
+	bochs -f scripts/bochsrc.txt
 
 .PHONY:debug
 debug:

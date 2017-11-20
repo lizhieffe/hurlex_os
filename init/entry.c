@@ -13,11 +13,16 @@
 // The initialization process after paging enabled.
 void kern_init();
 
+uint32_t kern_stack_top;
+
 // global multibool pointer after paging enabled
 multiboot_t *glb_mboot_ptr;
 
 // kernel stack after paging enabled.
 char kern_stack[STACK_SIZE];
+
+int thread_test_flag = 0;
+static int thread_test(void *arg);
 
 // The page directory and page table used used by kernel before paging enabled.
 // These address must be aligned (why?). 0-640KB are (certainly) free.
@@ -54,7 +59,7 @@ __attribute__((section(".init.text"))) void kern_entry() {
   asm volatile ("mov %0, %%cr0" : : "r" (cr0));
   
   // 切换内核栈
-  uint32_t kern_stack_top = ((uint32_t)kern_stack + STACK_SIZE) & 0xFFFFFFF0;
+  kern_stack_top = ((uint32_t)kern_stack + STACK_SIZE) & 0xFFFFFFF0;
   asm volatile ("mov %0, %%esp\n\t"
   		"xor %%ebp, %%ebp" : : "r" (kern_stack_top));
 
@@ -74,9 +79,6 @@ void kern_init() {
 
   init_timer(200);
 
-  // Enable the interrupt.
-  // asm volatile ("sti");
-
   printk("kernel in memory start: 0x%08X\n", kern_start);
   printk("kernel in memory end:   0x%08X\n", kern_end);
   printk("kernel in memory used:   %d KB\n\n", (kern_end - kern_start + 1023) / 1024);
@@ -89,15 +91,15 @@ void kern_init() {
       "\nThe Count of Physical Memory Page is: %u\n\n", phy_page_count);
 
   uint32_t allc_addr = NULL;
-  printk_color(rc_black, rc_light_brown, "Test Physical Memory Alloc :\n");
-  allc_addr = pmm_alloc_page();
-  printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
-  allc_addr = pmm_alloc_page();
-  printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
-  allc_addr = pmm_alloc_page();
-  printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
-  allc_addr = pmm_alloc_page();
-  printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
+  // printk_color(rc_black, rc_light_brown, "Test Physical Memory Alloc :\n");
+  // allc_addr = pmm_alloc_page();
+  // printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
+  // allc_addr = pmm_alloc_page();
+  // printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
+  // allc_addr = pmm_alloc_page();
+  // printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
+  // allc_addr = pmm_alloc_page();
+  // printk_color(rc_black, rc_light_brown, "Alloc Physical Addr: 0x%08X\n", allc_addr);
 
   printk_color(rc_black, rc_green, "0x%08X->0x%08x\n", 0xC0000000, (uint32_t)get_phyaddr(0xC0000000));
   printk_color(rc_black, rc_green, "0x%08X->0x%08x\n", 0xC0010020, (uint32_t)get_phyaddr(0xC0010020));
@@ -105,11 +107,32 @@ void kern_init() {
   init_heap();
 
   printk_color(rc_black, rc_red, "\nThe Count of Physical Memory Page is: %u\n\n", phy_page_count);
-
   test_heap();
 
+  init_sched();
+  kernel_thread(thread_test, NULL);
+
+  // Enable the interrupt.
+  asm volatile ("sti");
+
+  while (1) {
+    if (thread_test_flag == 0) {
+      printk_color(rc_black, rc_red, "A");
+      thread_test_flag = 1;
+    }
+  }
 
   while (1) {
     asm volatile ("hlt");
   }
+}
+
+int thread_test(void *arg) {
+  while (1) {
+    if (thread_test_flag == 1) {
+      printk_color(rc_black, rc_green, "B");
+      thread_test_flag = 0;
+    }
+  }
+  return 0;
 }
